@@ -1,0 +1,9 @@
+package run;
+
+import view.Fenetre;
+
+public class App {
+    public static void main(String[] args) throws Exception {
+        Fenetre fenetre = new Fenetre();
+    }
+}
