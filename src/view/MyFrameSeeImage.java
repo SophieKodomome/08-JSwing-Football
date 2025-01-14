@@ -1,8 +1,6 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.Image;
 import java.io.File;
 
 import javax.swing.*;
