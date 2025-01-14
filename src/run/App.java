@@ -1,9 +1,9 @@
 package run;
 
-import view.Fenetre;
+import view.*;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        Fenetre fenetre = new Fenetre();
+        MyWindow fenetre = new MyWindow();
     }
 }
