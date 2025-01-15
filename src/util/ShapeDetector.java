@@ -4,52 +4,72 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import main.Player;
+import main.Side;
+import main.SimpleObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShapeDetector {
 
-    static { System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
+    static {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    }
 
     private static File uploadFile;
     private static File resultFile;
+    private Side side;
+    private ArrayList<Player> players1;
+    private ArrayList<Player> players2;
+    private SimpleObject ball;
     private Mat imageSourceMat;
 
-    public ShapeDetector(){}
+    public ShapeDetector() {
+    }
 
-    public ShapeDetector(File file){
+    public ShapeDetector(File file, Side side) {
         setUploadFile(file);
+        setSide(side);
         setImageSourceMat();
         detectShapes();
         saveResult();
     }
 
-    public void setUploadFile(File f){
-        if(f.exists()){
-            uploadFile=f;
-        }else{
+    public void setSide(Side s) {
+        side = s;
+    }
+
+    public Side getSide(Side s) {
+        return side;
+    }
+
+    public void setUploadFile(File f) {
+        if (f.exists()) {
+            uploadFile = f;
+        } else {
             System.out.println("uploaded File does not exist");
         }
     }
 
-    public File getUploadFile(){
+    public File getUploadFile() {
         return uploadFile;
     }
 
-    public void setResultFile(File f){
-        if(f.exists()){
-            resultFile=f;
-        }else{
+    public void setResultFile(File f) {
+        if (f.exists()) {
+            resultFile = f;
+        } else {
             System.out.println("result File does not exist");
         }
     }
 
-    public File getResultFile(){
+    public File getResultFile() {
         return resultFile;
     }
 
-    public void setImageSourceMat(){
+    public void setImageSourceMat() {
         imageSourceMat = Imgcodecs.imread(getUploadFile().getAbsolutePath());
     }
 
@@ -83,15 +103,14 @@ public class ShapeDetector {
         Core.inRange(hsv, new Scalar(0, 0, 0), new Scalar(180, 255, 50), blackMask);
 
         // Process each mask
-        processMask(blueMask, imageSourceMat, "Blue Player", new Scalar(255, 0, 0)); // Blue
-        processMask(redMask, imageSourceMat, "Red Player", new Scalar(0, 0, 255));  // Red
         processMask(blackMask, imageSourceMat, "Black Ball", new Scalar(0, 0, 0)); // Black
+        processMask(blueMask, imageSourceMat, "Blue Player", new Scalar(255, 0, 0)); // Blue
+        processMask(redMask, imageSourceMat, "Red Player", new Scalar(0, 0, 255)); // Red
     }
 
-    public void saveResult(){
+    public void saveResult() {
         // Save the output image
         String outputPath = "../assets/resultat.png"; // Update the path as needed
-
 
         boolean isSaved = Imgcodecs.imwrite(outputPath, imageSourceMat);
         if (isSaved) {
@@ -125,7 +144,17 @@ public class ShapeDetector {
 
             if (isCircle) {
                 Imgproc.rectangle(imageSourceMat, boundingRect, color, 2);
-                Imgproc.putText(imageSourceMat, label, new Point(boundingRect.x + boundingRect.width, boundingRect.y +8),
+
+                Imgproc.putText(imageSourceMat, label,
+                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8),
+                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+
+                Imgproc.putText(imageSourceMat, "x: " + boundingRect.x + " " + "y: " + boundingRect.y,
+                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8*3),
+                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+
+                Imgproc.putText(imageSourceMat, "width: " + boundingRect.width + " " + "height: " + boundingRect.height,
+                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8*6),
                         Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
             }
         }

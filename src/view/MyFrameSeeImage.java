@@ -5,41 +5,40 @@ import java.io.File;
 
 import javax.swing.*;
 
-import util.ShapeDetector;
 
 public class MyFrameSeeImage extends JFrame {
-    // private final Dimension screenSize =
-    // Toolkit.getDefaultToolkit().getScreenSize();
     private final String title = "Football - Hors Jeu";
     private MyPanelPicture panelPicture;
+    private JPanel panelChosingSides;
 
     public MyFrameSeeImage() {
     }
 
-    public MyFrameSeeImage(File f) {
+    public MyFrameSeeImage(File file) {
         setTitle(title);
 
         setLayout(new BorderLayout());
         setSize(500, 1000);
-        ShapeDetector shapeDetector = new ShapeDetector(f);
 
-        setMyPanelPicture(shapeDetector.getResultFile());
+        MyPanelChosingSides panelChosingSides = new MyPanelChosingSides(this,file); // Add this line
+        //ShapeDetector shapeDetector = new ShapeDetector(f);
+        setMyPanelPicture(file);
 
         
-        MyButtonUploadImage uploadButton = new MyButtonUploadImage(this);
+        //MyButtonUploadImage uploadButton = new MyButtonUploadImage(this);
 
-        add(getMyPanelPicture(),BorderLayout.CENTER);
-        add(uploadButton,BorderLayout.SOUTH);
+        add(getMyPanelPicture(), BorderLayout.CENTER);
+        //add(uploadButton, BorderLayout.SOUTH);
+        add(panelChosingSides, BorderLayout.NORTH); // Add the panelChosingSides to the frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
-    public void setMyPanelPicture(File f) {
-        panelPicture = new MyPanelPicture(f);
+    public void setMyPanelPicture(File file) {
+        panelPicture = new MyPanelPicture(file);
     }
 
     public MyPanelPicture getMyPanelPicture() {
         return panelPicture;
     }
-
 }
