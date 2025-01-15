@@ -50,7 +50,7 @@ public class ShapeDetector {
     }
 
     public void setImageSourceMat(){
-        imageSourceMat= Imgcodecs.imread(getUploadFile().getAbsolutePath());
+        imageSourceMat = Imgcodecs.imread(getUploadFile().getAbsolutePath());
     }
 
     public void detectShapes() {
@@ -83,9 +83,9 @@ public class ShapeDetector {
         Core.inRange(hsv, new Scalar(0, 0, 0), new Scalar(180, 255, 50), blackMask);
 
         // Process each mask
-        processMask(blueMask, imageSourceMat, "Blue Circle", new Scalar(255, 0, 0)); // Blue
-        processMask(redMask, imageSourceMat, "Red Circle", new Scalar(0, 0, 255));  // Red
-        processMask(blackMask, imageSourceMat, "Black Circle", new Scalar(0, 0, 0)); // Black
+        processMask(blueMask, imageSourceMat, "Blue Player", new Scalar(255, 0, 0)); // Blue
+        processMask(redMask, imageSourceMat, "Red Player", new Scalar(0, 0, 255));  // Red
+        processMask(blackMask, imageSourceMat, "Black Ball", new Scalar(0, 0, 0)); // Black
     }
 
     public void saveResult(){
@@ -99,9 +99,9 @@ public class ShapeDetector {
         } else {
             System.out.println("Failed to save the image at " + outputPath);
         }
-
         setResultFile(new File(outputPath));
     }
+
     private static void processMask(Mat mask, Mat imageSourceMat, String label, Scalar color) {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
@@ -125,7 +125,7 @@ public class ShapeDetector {
 
             if (isCircle) {
                 Imgproc.rectangle(imageSourceMat, boundingRect, color, 2);
-                Imgproc.putText(imageSourceMat, label, new Point(boundingRect.x, boundingRect.y - 10),
+                Imgproc.putText(imageSourceMat, label, new Point(boundingRect.x + boundingRect.width, boundingRect.y +8),
                         Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
             }
         }
