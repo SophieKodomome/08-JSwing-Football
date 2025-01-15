@@ -21,7 +21,6 @@ public class MyPanelPicture extends JPanel {
         try {
             image = ImageIO.read(f);
             resizeIfNeeded();
-            ShapeDetector.detectShapes(f.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }

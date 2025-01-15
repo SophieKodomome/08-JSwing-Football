@@ -5,6 +5,8 @@ import java.io.File;
 
 import javax.swing.*;
 
+import util.ShapeDetector;
+
 public class MyFrameSeeImage extends JFrame {
     // private final Dimension screenSize =
     // Toolkit.getDefaultToolkit().getScreenSize();
@@ -19,7 +21,9 @@ public class MyFrameSeeImage extends JFrame {
 
         setLayout(new BorderLayout());
         setSize(500, 1000);
-        setMyPanelPicture(f);
+        ShapeDetector shapeDetector = new ShapeDetector(f);
+
+        setMyPanelPicture(shapeDetector.getResultFile());
 
         
         MyButtonUploadImage uploadButton = new MyButtonUploadImage(this);
