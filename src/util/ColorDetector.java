@@ -74,3 +74,4 @@ public class ColorDetector {
             Imgproc.rectangle(image, boundingRect.tl(), boundingRect.br(), color, 2);
         }
     }
+}

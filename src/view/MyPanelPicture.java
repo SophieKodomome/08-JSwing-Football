@@ -7,6 +7,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import util.ShapeDetector;
+
 public class MyPanelPicture extends JPanel {
     private BufferedImage image;
 
@@ -19,6 +21,7 @@ public class MyPanelPicture extends JPanel {
         try {
             image = ImageIO.read(f);
             resizeIfNeeded();
+            ShapeDetector.detectShapes(f.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,15 +36,6 @@ public class MyPanelPicture extends JPanel {
             g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), null);
         }
     }
-
-    public void resizeImage(int width, int height) {
-        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(image, 0, 0, width, height, null);
-        g.dispose();
-        image = resizedImage;
-    }
-
     /**
      * Checks if the image is larger than the screen dimensions.
      * If it is, resizes the image to fit the screen while maintaining aspect ratio.
@@ -72,5 +66,14 @@ public class MyPanelPicture extends JPanel {
             // Resize the image
             resizeImage(newWidth, newHeight);
         }
+    }
+
+    
+    public void resizeImage(int width, int height) {
+        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(image, 0, 0, width, height, null);
+        g.dispose();
+        image = resizedImage;
     }
 }
