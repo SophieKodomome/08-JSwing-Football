@@ -10,7 +10,9 @@ import main.SimpleObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import javax.swing.*;
 
 public class ShapeDetector {
 
@@ -20,9 +22,8 @@ public class ShapeDetector {
 
     private static File uploadFile;
     private static File resultFile;
-    private Side side;
-    private ArrayList<Player> players1;
-    private ArrayList<Player> players2;
+    private Side teamSide;
+    private ArrayList<Player> players;
     private SimpleObject ball;
     private Mat imageSourceMat;
 
@@ -31,18 +32,38 @@ public class ShapeDetector {
 
     public ShapeDetector(File file, Side side) {
         setUploadFile(file);
-        setSide(side);
+        setTeamSide(side);
         setImageSourceMat();
+        setSideMeasure();
         detectShapes();
         saveResult();
+        // printImageSize();
     }
 
-    public void setSide(Side s) {
-        side = s;
+    public void setBall(SimpleObject s) {
+        ball = s;
     }
 
-    public Side getSide(Side s) {
-        return side;
+    public SimpleObject getBall() {
+        return ball;
+    }
+
+    public void setTeamSide(Side s) {
+        teamSide = s;
+    }
+
+    public void setSideMeasure() {
+        if (teamSide.getPosition() == "Up") {
+            teamSide.setY(0);
+            teamSide.setHeight(imageSourceMat.rows() / 2);
+        } else {
+            teamSide.setY(imageSourceMat.rows() / 2);
+            teamSide.setHeight(imageSourceMat.rows());
+        }
+    }
+
+    public Side getTeamSide() {
+        return teamSide;
     }
 
     public void setUploadFile(File f) {
@@ -103,9 +124,82 @@ public class ShapeDetector {
         Core.inRange(hsv, new Scalar(0, 0, 0), new Scalar(180, 255, 50), blackMask);
 
         // Process each mask
-        processMask(blackMask, imageSourceMat, "Black Ball", new Scalar(0, 0, 0)); // Black
-        processMask(blueMask, imageSourceMat, "Blue Player", new Scalar(255, 0, 0)); // Blue
-        processMask(redMask, imageSourceMat, "Red Player", new Scalar(0, 0, 255)); // Red
+        processMask(blackMask, imageSourceMat, "Ball", new Scalar(0, 0, 0)); // Search the ball
+
+        teamSide.checkBallSide(ball);
+
+        processMask(blueMask, imageSourceMat, "Blue", new Scalar(255, 0, 0)); // Blue
+        processMask(redMask, imageSourceMat, "Red", new Scalar(0, 0, 255)); // Red
+
+        Player goalie = new Player();
+        Player defender = new Player();
+        Player striker = new Player();
+
+        if (players != null && !players.isEmpty()) {
+            // Sort players by their proximity to the field's Y or height boundary
+            players.sort(Comparator.comparingInt(Player::getY));
+            Player player = new Player();
+
+            if (teamSide.getPosition() == "Up") {
+
+                player = players.get(0);
+                
+            } else {
+                player = players.getLast();
+            }
+                goalie = player;
+                goalie.setRole("Goalie");
+
+            if (teamSide.getPosition() == "Up") {
+                for (int i = 0; i < players.size(); i++) {
+                    if (goalie.getColor() == players.get(i).getColor() &&  goalie.getRole() != players.get(i).getRole()) {
+                        defender=players.get(i);
+                        defender.setRole("defender");
+                    }
+                }
+
+                for (int i = players.size(); i > 0; i--) {
+                    if (goalie.getColor() == players.get(i-1).getColor() &&  goalie.getRole() != players.get(i-1).getRole()) {
+                        defender=players.get(i);
+                        defender.setRole("defender");
+                    }
+                }
+            }
+            // Assign the closest player to the "Goalie" role
+
+            // Assign the second closest player to the "Defender" role
+            /*
+             * if (players.size() > 1) {
+             * Player goalie2 = players.get(players.size()-1);
+             * goalie2.setRole("Goalie");
+             * Imgproc.putText(imageSourceMat, goalie2.getColor() + " " + goalie2.getRole(),
+             * new Point(goalie2.getX() + goalie2.getWidth(), goalie2.getY() - 10),
+             * Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(255, 255, 0), 2);
+             * }
+             */
+        }
+        Player closestPlayer = Player.findClosestPlayer(ball, players);
+
+        if (closestPlayer != null) {
+            if (closestPlayer.getColor() != teamSide.getColor() && closestPlayer.getY() >= teamSide.getY()
+                    && closestPlayer.getHeight() <= teamSide.getHeight()) {
+                striker = closestPlayer;
+                striker.setRole("Striker");
+            }
+        }
+        
+        Imgproc.putText(imageSourceMat, striker.getColor() + striker.getRole(),
+        new Point(striker.getX() + striker.getWidth(), striker.getY() + 8 * 9),
+        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+
+        Imgproc.putText(imageSourceMat, goalie.getColor() + goalie.getRole(),
+        new Point(goalie.getX() + goalie.getWidth(), goalie.getY() + 8 * 9),
+        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+
+        Imgproc.putText(imageSourceMat, defender.getColor() + defender.getRole(),
+        new Point(defender.getX() + defender.getWidth(), defender.getY() + 8 * 9),
+        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+
     }
 
     public void saveResult() {
@@ -121,7 +215,7 @@ public class ShapeDetector {
         setResultFile(new File(outputPath));
     }
 
-    private static void processMask(Mat mask, Mat imageSourceMat, String label, Scalar color) {
+    private void processMask(Mat mask, Mat imageSourceMat, String label, Scalar color) {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -143,20 +237,64 @@ public class ShapeDetector {
                     Math.abs(1 - (area / (Math.PI * Math.pow(radius, 2)))) <= 0.2;
 
             if (isCircle) {
+
                 Imgproc.rectangle(imageSourceMat, boundingRect, color, 2);
+
+                Imgproc.putText(imageSourceMat, "x: " + boundingRect.x + " " + "y: " + boundingRect.y,
+                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8 * 3),
+                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+
+                Imgproc.putText(imageSourceMat,
+                        "width: " + boundingRect.width + " " + "height: " + boundingRect.height,
+                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8 * 6),
+                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+
+                if (label == "Ball") {
+
+                    setBall(
+                            new SimpleObject(
+                                    boundingRect.x,
+                                    boundingRect.y,
+                                    boundingRect.width,
+                                    boundingRect.height));
+
+                    Imgproc.putText(imageSourceMat, label,
+                            new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8),
+                            Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
+                } else {
+                    Player player = new Player();
+                    player.setColor(label);
+                    player.setX(boundingRect.x);
+                    player.setY(boundingRect.y);
+                    player.setHeight(boundingRect.height);
+                    player.setWidth(boundingRect.width);
+
+                    if (players == null)
+                        players = new ArrayList<>();
+                    players.add(player);
+                }
 
                 Imgproc.putText(imageSourceMat, label,
                         new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8),
                         Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
 
-                Imgproc.putText(imageSourceMat, "x: " + boundingRect.x + " " + "y: " + boundingRect.y,
-                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8*3),
-                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
-
-                Imgproc.putText(imageSourceMat, "width: " + boundingRect.width + " " + "height: " + boundingRect.height,
-                        new Point(boundingRect.x + boundingRect.width, boundingRect.y + 8*6),
-                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
             }
         }
+    }
+
+    public void printImageSize() {
+        if (imageSourceMat == null || imageSourceMat.empty()) {
+            System.out.println("Image is not loaded or is empty.");
+            return;
+        }
+
+        int width = imageSourceMat.cols(); // Width of the image
+        int height = imageSourceMat.rows(); // Height of the image
+        // int channels = imageSourceMat.channels(); // Number of color channels
+
+        System.out.println("Image Dimensions: ");
+        System.out.println("Width: " + width);
+        System.out.println("Height: " + height);
+        // System.out.println("Channels: " + channels);
     }
 }

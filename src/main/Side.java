@@ -51,4 +51,15 @@ public class Side extends SimpleObject {
     public void setPosition(String position) {
         this.position = position;
     }
+    
+    public void checkBallSide(SimpleObject ball){
+
+        if(ball.getY() >= this.getY() && (ball.getHeight()+ball.getY()) <= this.getHeight()){
+            this.setHasBall(true);
+            System.out.println("The ball is on "+this.getColor()+"'s Side");
+        }else{
+            this.setHasBall(false);
+            System.out.println("The ball is not on "+this.getColor()+"'s Side");
+        }
+    }
 }

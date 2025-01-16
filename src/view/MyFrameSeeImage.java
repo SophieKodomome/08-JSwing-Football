@@ -9,7 +9,6 @@ import javax.swing.*;
 public class MyFrameSeeImage extends JFrame {
     private final String title = "Football - Hors Jeu";
     private MyPanelPicture panelPicture;
-    private JPanel panelChosingSides;
 
     public MyFrameSeeImage() {
     }

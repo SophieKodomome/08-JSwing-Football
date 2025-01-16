@@ -26,12 +26,6 @@ public class MyPanelChosingSides extends JPanel {
             side.setColor("Red");
             side.setPosition("Down");
 
-            side.setY(parentFrame.getHeight() / 2);
-            side.setHeight(parentFrame.getHeight() / 2);
-
-            System.out.println(side.getY());
-            System.out.println(side.getHeight());
-
             new MyFrameResult(file, side);
             parentFrame.setVisible(false);
         });
@@ -42,13 +36,7 @@ public class MyPanelChosingSides extends JPanel {
             side = new Side();
             side.setColor("Red");
             side.setPosition("Up");
-
-            side.setY(parentFrame.getY());
-            side.setHeight(parentFrame.getHeight() / 2);
-
-            System.out.println(side.getY());
-            System.out.println(side.getHeight());
-
+            
             new MyFrameResult(file, side);
             parentFrame.setVisible(false);
         });
