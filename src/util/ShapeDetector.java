@@ -136,47 +136,29 @@ public class ShapeDetector {
         Player striker = new Player();
 
         if (players != null && !players.isEmpty()) {
-            // Sort players by their proximity to the field's Y or height boundary
-            players.sort(Comparator.comparingInt(Player::getY));
-            Player player = new Player();
-
             if (teamSide.getPosition() == "Up") {
-
-                player = players.get(0);
-                
+                players.sort(Comparator.comparingInt(Player::getY));
             } else {
-                player = players.getLast();
+                players.sort(Comparator.comparingInt(Player::getY).reversed());
             }
+            // Sort players by their proximity to the field's Y or height boundary
+
+            Player player = new Player();
+            player = players.get(0);
+
+            if (player.getColor() == teamSide.getColor() && player.getY() >= teamSide.getY()
+                    && player.getHeight() <= teamSide.getHeight()) {
+
                 goalie = player;
                 goalie.setRole("Goalie");
-
-            if (teamSide.getPosition() == "Up") {
-                for (int i = 0; i < players.size(); i++) {
-                    if (goalie.getColor() == players.get(i).getColor() &&  goalie.getRole() != players.get(i).getRole()) {
-                        defender=players.get(i);
-                        defender.setRole("defender");
-                    }
-                }
-
-                for (int i = players.size(); i > 0; i--) {
-                    if (goalie.getColor() == players.get(i-1).getColor() &&  goalie.getRole() != players.get(i-1).getRole()) {
-                        defender=players.get(i);
-                        defender.setRole("defender");
-                    }
+            }
+            for (int i = 0; i < players.size(); i++) {
+                if (goalie.getColor() == players.get(i).getColor() && goalie.getRole() != players.get(i).getRole()) {
+                    defender = players.get(i);
+                    defender.setRole("defender");
+                    break;
                 }
             }
-            // Assign the closest player to the "Goalie" role
-
-            // Assign the second closest player to the "Defender" role
-            /*
-             * if (players.size() > 1) {
-             * Player goalie2 = players.get(players.size()-1);
-             * goalie2.setRole("Goalie");
-             * Imgproc.putText(imageSourceMat, goalie2.getColor() + " " + goalie2.getRole(),
-             * new Point(goalie2.getX() + goalie2.getWidth(), goalie2.getY() - 10),
-             * Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(255, 255, 0), 2);
-             * }
-             */
         }
         Player closestPlayer = Player.findClosestPlayer(ball, players);
 
@@ -185,20 +167,31 @@ public class ShapeDetector {
                     && closestPlayer.getHeight() <= teamSide.getHeight()) {
                 striker = closestPlayer;
                 striker.setRole("Striker");
+                striker.setStatus(" ");
+
+                if (teamSide.getPosition().equals("Up")) {
+                    if (striker.getY() + striker.getHeight() < defender.getY()) {
+                        striker.setStatus("Offside");
+                    }
+                } else {
+                    if (striker.getY() > defender.getY() + defender.getHeight()) {
+                        striker.setStatus("Offside");
+                    }
+                }
             }
         }
-        
-        Imgproc.putText(imageSourceMat, striker.getColor() + striker.getRole(),
-        new Point(striker.getX() + striker.getWidth(), striker.getY() + 8 * 9),
-        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+
+        Imgproc.putText(imageSourceMat, striker.getColor() + striker.getRole() + " " + striker.getStatus(),
+                new Point(striker.getX() + striker.getWidth(), striker.getY() + 8 * 9),
+                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
 
         Imgproc.putText(imageSourceMat, goalie.getColor() + goalie.getRole(),
-        new Point(goalie.getX() + goalie.getWidth(), goalie.getY() + 8 * 9),
-        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+                new Point(goalie.getX() + goalie.getWidth(), goalie.getY() + 8 * 9),
+                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
 
         Imgproc.putText(imageSourceMat, defender.getColor() + defender.getRole(),
-        new Point(defender.getX() + defender.getWidth(), defender.getY() + 8 * 9),
-        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+                new Point(defender.getX() + defender.getWidth(), defender.getY() + 8 * 9),
+                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
 
     }
 
