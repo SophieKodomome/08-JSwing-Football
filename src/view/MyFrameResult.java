@@ -23,6 +23,9 @@ public class MyFrameResult extends JFrame{
         ShapeDetector shapeDetector = new ShapeDetector(file,side);
 
         setMyPanelPicture(shapeDetector.getResultFile());
+        MyButtonUploadImage uploadButton = new MyButtonUploadImage(this);
+        add(uploadButton, BorderLayout.NORTH);
+
         add(getMyPanelPicture(), BorderLayout.CENTER);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

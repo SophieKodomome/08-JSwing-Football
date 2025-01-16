@@ -164,10 +164,9 @@ public class ShapeDetector {
 
         if (closestPlayer != null) {
             if (closestPlayer.getColor() != teamSide.getColor() && closestPlayer.getY() >= teamSide.getY()
-                    && closestPlayer.getHeight() <= teamSide.getHeight()) {
+                    && (closestPlayer.getHeight()+closestPlayer.getY()) <= (teamSide.getHeight()+teamSide.getY())) {
                 striker = closestPlayer;
                 striker.setRole("Striker");
-                striker.setStatus(" ");
 
                 if (teamSide.getPosition().equals("Up")) {
                     if (striker.getY() + striker.getHeight() < defender.getY()) {
@@ -180,18 +179,27 @@ public class ShapeDetector {
                 }
             }
         }
+        if (goalie.getRole() != null) {
+            Imgproc.putText(imageSourceMat, goalie.getColor() + goalie.getRole(),
+                    new Point(goalie.getX() + goalie.getWidth(), goalie.getY() + 8 * 9),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+        }
 
-        Imgproc.putText(imageSourceMat, striker.getColor() + striker.getRole() + " " + striker.getStatus(),
-                new Point(striker.getX() + striker.getWidth(), striker.getY() + 8 * 9),
-                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
-
-        Imgproc.putText(imageSourceMat, goalie.getColor() + goalie.getRole(),
-                new Point(goalie.getX() + goalie.getWidth(), goalie.getY() + 8 * 9),
-                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
-
-        Imgproc.putText(imageSourceMat, defender.getColor() + defender.getRole(),
-                new Point(defender.getX() + defender.getWidth(), defender.getY() + 8 * 9),
-                Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+        if (defender.getRole() != null) {
+            Imgproc.putText(imageSourceMat, defender.getColor() + defender.getRole(),
+                    new Point(defender.getX() + defender.getWidth(), defender.getY() + 8 * 9),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+        }
+        if (striker.getRole() != null) {
+            if (striker.getStatus() != null) {
+                Imgproc.putText(imageSourceMat, striker.getColor() + striker.getRole() + " " + striker.getStatus(),
+                        new Point(striker.getX() + striker.getWidth(), striker.getY() + 8 * 9),
+                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+            }
+            Imgproc.putText(imageSourceMat, striker.getColor() + striker.getRole(),
+                    new Point(striker.getX() + striker.getWidth(), striker.getY() + 8 * 9),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 2);
+        }
 
     }
 

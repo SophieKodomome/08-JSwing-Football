@@ -24,10 +24,10 @@ public class MyFrameSeeImage extends JFrame {
         setMyPanelPicture(file);
 
         
-        //MyButtonUploadImage uploadButton = new MyButtonUploadImage(this);
+        MyButtonUploadImage uploadButton = new MyButtonUploadImage(this);
 
         add(getMyPanelPicture(), BorderLayout.CENTER);
-        //add(uploadButton, BorderLayout.SOUTH);
+        add(uploadButton, BorderLayout.NORTH);
         add(panelChosingSides, BorderLayout.NORTH); // Add the panelChosingSides to the frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
